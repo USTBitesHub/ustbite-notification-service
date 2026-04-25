@@ -16,7 +16,7 @@ def order_confirmed_email(
             1px solid #E5E7EB;">{item['name']}</td>
           <td style="padding:8px;border-bottom:
             1px solid #E5E7EB;
-            text-align:center;">x{item['quantity']}</td>
+            text-align:center;">x{item.get('qty', item.get('quantity', 1))}</td>
           <td style="padding:8px;border-bottom:
             1px solid #E5E7EB;
             text-align:right;">

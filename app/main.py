@@ -8,6 +8,7 @@ import uuid
 import asyncio
 from prometheus_client import generate_latest, CONTENT_TYPE_LATEST, Counter, Histogram
 from app.config import settings
+from app.events.consumer import start_consumer
 
 app = FastAPI(
     title="ustbite-notification-service",
@@ -68,6 +69,10 @@ async def logging_middleware(request: Request, call_next):
     
     return response
 
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(start_consumer())
+
 @app.get("/health")
 async def health():
     svc_name = getattr(settings, 'SERVICE_NAME', "ustbite-notification-service")
@@ -80,22 +85,6 @@ async def health():
 @app.get("/metrics")
 async def metrics():
     return Response(
-        generate_latest(), 
+        generate_latest(),
         media_type=CONTENT_TYPE_LATEST
     )
-
-from app.events.consumer import start_consumer
-
-app = FastAPI(title="ustbite-notification-service", version="1.0.0")
-
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(start_consumer())
-
-@app.get("/health")
-async def health():
-    return {"status": "healthy"}
-
-@app.get("/metrics")
-async def metrics():
-    return {"status": "success"}
